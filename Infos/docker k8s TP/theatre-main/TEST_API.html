@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎭 Test API - Plateforme de Billetterie</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .status {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #28a745;
+        }
+        .status.error {
+            border-left-color: #dc3545;
+        }
+        .status h2 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        .status.error h2 {
+            color: #dc3545;
+        }
+        .links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .link-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            display: block;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .link-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        .link-card p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        .endpoint h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .method {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.85em;
+        }
+        .method.get { background: #28a745; color: white; }
+        .method.post { background: #007bff; color: white; }
+        .method.put { background: #ffc107; color: black; }
+        .method.delete { background: #dc3545; color: white; }
+        .url {
+            background: #2d3748;
+            color: #68d391;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        pre {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.85em;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .command {
+            background: #2d3748;
+            color: #f7fafc;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .copy-btn:hover {
+            background: #764ba2;
+        }
+        .test-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+        .test-btn:hover {
+            background: #218838;
+        }
+        #result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 Plateforme de Billetterie de Théâtre</h1>
+        <p class="subtitle">API REST - Documentation et Tests</p>
+
+        <div class="status" id="status">
+            <h2>⚠️ Application Non Démarrée</h2>
+            <p>Lancez l'application avec la commande ci-dessous :</p>
+            <div class="command">
+                cd "c:\Users\noala\Documents\Documents\Cours\M1 DevOps\Qualite de donnee\backend"
+                mvn spring-boot:run
+            </div>
+            <button class="test-btn" onclick="testConnection()">🔄 Tester la Connexion</button>
+            <div id="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>🔗 Liens Rapides</h2>
+            <div class="links">
+                <a href="http://localhost:8080/swagger-ui/index.html" target="_blank" class="link-card">
+                    <h3>📚 Swagger UI</h3>
+                    <p>Interface interactive pour tester l'API</p>
+                </a>
+                <a href="http://localhost:8080/v3/api-docs" target="_blank" class="link-card">
+                    <h3>📄 OpenAPI Docs</h3>
+                    <p>Documentation OpenAPI au format JSON</p>
+                </a>
+                <a href="http://localhost:8080/api/spectacles" target="_blank" class="link-card">
+                    <h3>🎬 Liste des Spectacles</h3>
+                    <p>Voir tous les spectacles disponibles</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Endpoints Principaux</h2>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> Inscription</h3>
+                <div class="url">http://localhost:8080/api/auth/register</div>
+                <p><strong>Body JSON :</strong></p>
+                <pre>{
+  "nom": "Dupont",
+  "prenom": "Jean",
+  "email": "jean.dupont@example.com",
+  "motDePasse": "SecurePass123!"
+}</pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> Connexion</h3>
+                <div class="url">http://localhost:8080/api/auth/login</div>
+                <p><strong>Body JSON :</strong></p>
+                <pre>{
+  "email": "jean.dupont@example.com",
+  "motDePasse": "SecurePass123!"
+}</pre>
+                <p><em>Retourne un token JWT à utiliser dans les requêtes suivantes</em></p>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> Liste des Spectacles</h3>
+                <div class="url">http://localhost:8080/api/spectacles</div>
+                <p>Récupère tous les spectacles disponibles</p>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> Détails d'un Spectacle</h3>
+                <div class="url">http://localhost:8080/api/spectacles/{id}</div>
+                <p>Exemple : <code>http://localhost:8080/api/spectacles/1</code></p>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> Spectacles Populaires</h3>
+                <div class="url">http://localhost:8080/api/spectacles/populaires</div>
+                <p>Top 5 des spectacles les plus réservés</p>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> Créer une Réservation</h3>
+                <div class="url">http://localhost:8080/api/reservations</div>
+                <p><strong>Headers :</strong></p>
+                <pre>Authorization: Bearer {votre_token_jwt}</pre>
+                <p><strong>Body JSON :</strong></p>
+                <pre>{
+  "idSpectacle": 1,
+  "nombrePlaces": 2
+}</pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> Mes Réservations</h3>
+                <div class="url">http://localhost:8080/api/reservations/mes-reservations</div>
+                <p><strong>Headers :</strong></p>
+                <pre>Authorization: Bearer {votre_token_jwt}</pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> Statistiques</h3>
+                <div class="url">http://localhost:8080/api/statistiques/dashboard</div>
+                <p>Vue d'ensemble des statistiques de la plateforme</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Commandes Utiles</h2>
+
+            <div class="endpoint">
+                <h3>Lancer l'application</h3>
+                <div class="command">
+                    cd "c:\Users\noala\Documents\Documents\Cours\M1 DevOps\Qualite de donnee\backend"
+                    mvn spring-boot:run
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <h3>Compiler le projet</h3>
+                <div class="command">
+                    mvn clean compile
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <h3>Créer le JAR</h3>
+                <div class="command">
+                    mvn clean package -DskipTests
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <h3>Tester avec curl (PowerShell)</h3>
+                <div class="command">
+                    # Liste des spectacles
+                    Invoke-WebRequest -Uri "http://localhost:8080/api/spectacles" -Method GET | ConvertFrom-Json
+
+                    # Inscription
+                    $body = @{
+                        nom = "Dupont"
+                        prenom = "Jean"
+                        email = "jean.dupont@example.com"
+                        motDePasse = "SecurePass123!"
+                    } | ConvertTo-Json
+
+                    Invoke-WebRequest -Uri "http://localhost:8080/api/auth/register" `
+                        -Method POST `
+                        -ContentType "application/json" `
+                        -Body $body
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Base de Données</h2>
+            <div class="endpoint">
+                <h3>Connexion PostgreSQL</h3>
+                <p><strong>Host:</strong> localhost</p>
+                <p><strong>Port:</strong> 5432</p>
+                <p><strong>Database:</strong> theatre_db</p>
+                <p><strong>Username:</strong> theatre_user</p>
+                <p><strong>Password:</strong> theatre123</p>
+                <div class="command">
+                    & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U theatre_user -h localhost -d theatre_db
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            const statusDiv = document.getElementById('status');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>⏳ Test en cours...</p>';
+
+            try {
+                const response = await fetch('http://localhost:8080/api/spectacles');
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `<p style="color: #28a745;">✅ Connexion réussie ! ${data.length} spectacles trouvés.</p>`;
+                    statusDiv.className = 'status';
+                    statusDiv.innerHTML = '<h2>✅ Application Démarrée</h2><p>L\'API est accessible et fonctionne correctement !</p>';
+                } else {
+                    resultDiv.innerHTML = `<p style="color: #dc3545;">❌ Erreur HTTP ${response.status}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: #dc3545;">❌ Impossible de se connecter. L'application n'est pas démarrée.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

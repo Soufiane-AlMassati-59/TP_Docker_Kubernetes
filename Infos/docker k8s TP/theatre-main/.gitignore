@@ -1,0 +1,53 @@
+# Java / Maven
+backend/target/
+backend/*.jar
+backend/*.war
+backend/*.ear
+backend/*.class
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# Spring Boot
+backend/HELP.md
+backend/logs/
+backend/*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.metadata/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+*~
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Database
+*.sql.backup
+*.db
+
+# Secrets
+*.env
+*.secret
+application-secret.yml

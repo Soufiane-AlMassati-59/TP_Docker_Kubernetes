@@ -1,0 +1,128 @@
+```mermaid
+stateDiagram-v2
+    [*] --> NonAuthentifié
+    
+    state "Non Authentifié" as NonAuthentifié {
+        [*] --> PageAccueil
+        PageAccueil --> PageLogin : Clic "Se connecter"
+        PageAccueil --> PageRegister : Clic "S'inscrire"
+        PageLogin --> PageAccueil : Annuler
+        PageRegister --> PageAccueil : Annuler
+    }
+    
+    NonAuthentifié --> Authentifié : Login réussi
+    
+    state "Authentifié" as Authentifié {
+        state fork_role <<fork>>
+        [*] --> fork_role
+        
+        fork_role --> UtilisateurNormal : Role = USER
+        fork_role --> Administrateur : Role = ADMIN
+        
+        state "Utilisateur Normal" as UtilisateurNormal {
+            [*] --> ConsulterSpectacles
+            
+            state "Consulter Spectacles" as ConsulterSpectacles {
+                [*] --> ListeSpectacles
+                ListeSpectacles --> DetailSpectacle : Clic sur spectacle
+                DetailSpectacle --> ListeSpectacles : Retour
+                ListeSpectacles --> RechercheSpectacle : Recherche
+                RechercheSpectacle --> ListeSpectacles : Afficher résultats
+            }
+            
+            ConsulterSpectacles --> FaireReservation : Clic "Réserver"
+            
+            state "Faire Réservation" as FaireReservation {
+                [*] --> SelectionQuantite
+                SelectionQuantite --> ConfirmationReservation : Valider
+                ConfirmationReservation --> VerificationDisponibilite : Confirmer
+                
+                state VerificationDisponibilite <<choice>>
+                VerificationDisponibilite --> TraitementReservation : Places disponibles
+                VerificationDisponibilite --> ErreurPlaces : Places insuffisantes
+                
+                ErreurPlaces --> SelectionQuantite : Modifier quantité
+                
+                TraitementReservation --> ReservationReussie : Paiement OK
+                ReservationReussie --> AffichageCodeQR
+                AffichageCodeQR --> [*]
+            }
+            
+            FaireReservation --> ConsulterSpectacles : Annuler
+            FaireReservation --> MesReservations : Réservation terminée
+            
+            ConsulterSpectacles --> MesReservations : Aller à mes réservations
+            
+            state "Mes Réservations" as MesReservations {
+                [*] --> ListeReservations
+                ListeReservations --> DetailReservation : Clic sur réservation
+                DetailReservation --> ListeReservations : Retour
+                DetailReservation --> AnnulationReservation : Clic "Annuler"
+                
+                state AnnulationReservation <<choice>>
+                AnnulationReservation --> ConfirmationAnnulation : Peut être annulée
+                AnnulationReservation --> ErreurAnnulation : Ne peut pas être annulée
+                
+                ConfirmationAnnulation --> ListeReservations : Annulation confirmée
+                ErreurAnnulation --> DetailReservation : Message d'erreur
+            }
+            
+            MesReservations --> ConsulterSpectacles : Retour spectacles
+        }
+        
+        state "Administrateur" as Administrateur {
+            [*] --> DashboardAdmin
+            
+            state "Dashboard Admin" as DashboardAdmin {
+                [*] --> VueGenerale
+                VueGenerale --> Statistiques : Voir stats
+                Statistiques --> VueGenerale : Retour
+            }
+            
+            DashboardAdmin --> GestionSpectacles : Gérer spectacles
+            
+            state "Gestion Spectacles" as GestionSpectacles {
+                [*] --> ListeSpectaclesAdmin
+                ListeSpectaclesAdmin --> AjouterSpectacle : Nouveau spectacle
+                ListeSpectaclesAdmin --> ModifierSpectacle : Modifier
+                ListeSpectaclesAdmin --> SupprimerSpectacle : Supprimer
+                
+                AjouterSpectacle --> FormSpectacle
+                ModifierSpectacle --> FormSpectacle
+                
+                state FormSpectacle {
+                    [*] --> SaisieInfos
+                    SaisieInfos --> Validation
+                    
+                    state Validation <<choice>>
+                    Validation --> Enregistrement : Données valides
+                    Validation --> SaisieInfos : Erreurs de validation
+                    
+                    Enregistrement --> [*] : Succès
+                }
+                
+                FormSpectacle --> ListeSpectaclesAdmin : Enregistré/Annulé
+                
+                SupprimerSpectacle --> ConfirmationSuppression
+                ConfirmationSuppression --> ListeSpectaclesAdmin : Confirmé
+                ConfirmationSuppression --> ListeSpectaclesAdmin : Annulé
+            }
+            
+            GestionSpectacles --> DashboardAdmin : Retour dashboard
+            DashboardAdmin --> GestionUtilisateurs : Gérer utilisateurs
+            
+            state "Gestion Utilisateurs" as GestionUtilisateurs {
+                [*] --> ListeUtilisateurs
+                ListeUtilisateurs --> DetailUtilisateur : Voir détails
+                DetailUtilisateur --> ListeUtilisateurs : Retour
+                DetailUtilisateur --> ModifierRoleUtilisateur : Modifier rôle
+                ModifierRoleUtilisateur --> ListeUtilisateurs : Sauvegardé
+            }
+            
+            GestionUtilisateurs --> DashboardAdmin : Retour dashboard
+        }
+    }
+    
+    Authentifié --> NonAuthentifié : Déconnexion
+    NonAuthentifié --> [*] : Fermeture application
+```

@@ -1,0 +1,338 @@
+/* Spectacles Container */
+.spectacles-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header Section */
+.spectacles-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.spectacles-header h1 {
+  color: #2d3748;
+  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+}
+
+.subtitle {
+  color: #718096;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+
+/* Search Form */
+.search-form {
+  display: flex;
+  gap: 12px;
+  max-width: 800px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 250px;
+  padding: 14px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Spectacles Grid */
+.spectacles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+/* Spectacle Card */
+.spectacle-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+}
+
+.spectacle-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(102, 126, 234, 0.2);
+}
+
+.spectacle-link {
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Spectacle Image */
+.spectacle-image {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.spectacle-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+}
+
+.spectacle-card:hover .spectacle-image img {
+  transform: scale(1.1);
+}
+
+.spectacle-genre {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Spectacle Content */
+.spectacle-content {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.spectacle-title {
+  color: #2d3748;
+  margin: 0 0 12px 0;
+  font-size: 1.3rem;
+  line-height: 1.3;
+}
+
+.spectacle-description {
+  color: #718096;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+/* Info Items */
+.spectacle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #4a5568;
+  font-size: 0.9rem;
+}
+
+.info-icon {
+  font-size: 1.1rem;
+}
+
+/* Availability */
+.spectacle-availability {
+  margin-top: auto;
+}
+
+.availability-bar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.availability-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+  transition: width 0.3s;
+}
+
+.availability-text {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+/* Spectacle Footer */
+.spectacle-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-top: 2px solid #f7fafc;
+  gap: 15px;
+}
+
+.spectacle-price {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-size: 0.8rem;
+  color: #718096;
+  margin-bottom: 2px;
+}
+
+.price-amount {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Add to Cart Button */
+.btn-add-cart {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-add-cart:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.btn-add-cart:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-add-cart:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-add-cart.added {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  animation: pulse 0.5s;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* No Results */
+.no-results {
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin: 40px auto;
+  max-width: 600px;
+}
+
+.no-results-icon {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  opacity: 0.3;
+}
+
+.no-results h3 {
+  color: #2d3748;
+  margin-bottom: 10px;
+}
+
+.no-results p {
+  color: #718096;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .spectacles-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .spectacles-header h1 {
+    font-size: 2rem;
+  }
+
+  .search-form {
+    flex-direction: column;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .spectacles-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .spectacle-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .spectacle-price {
+    align-items: center;
+    text-align: center;
+  }
+
+  .btn-add-cart {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .spectacles-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .spectacle-image {
+    height: 180px;
+  }
+}

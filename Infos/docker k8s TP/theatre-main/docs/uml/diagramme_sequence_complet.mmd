@@ -1,0 +1,109 @@
+```mermaid
+sequenceDiagram
+    actor User as Utilisateur
+    participant FE as Frontend
+    participant API as API Gateway
+    participant Auth as AuthService
+    participant ResServ as ReservationService
+    participant SpecServ as SpectacleService
+    participant DB as Database
+    
+    %% Processus d'authentification
+    Note over User,DB: 1. Authentification
+    User->>FE: Saisit email/password
+    FE->>API: POST /auth/login {email, password}
+    API->>Auth: authenticate()
+    Auth->>DB: SELECT utilisateur
+    DB-->>Auth: Utilisateur
+    Auth->>Auth: validatePassword()
+    Auth->>Auth: generateJWT()
+    Auth-->>API: JWT Token
+    API-->>FE: 200 OK {token, user}
+    FE->>FE: store token in localStorage
+    FE-->>User: Redirection vers Dashboard
+    
+    %% Consultation des spectacles
+    Note over User,DB: 2. Consultation Spectacles
+    User->>FE: Accède à "Spectacles"
+    FE->>API: GET /spectacles (+ JWT)
+    API->>API: validateJWT()
+    API->>SpecServ: getAllSpectaclesActifs()
+    SpecServ->>DB: SELECT * FROM spectacles WHERE actif=true
+    DB-->>SpecServ: List<Spectacle>
+    SpecServ->>SpecServ: convertToResponse()
+    SpecServ-->>API: List<SpectacleResponse>
+    API-->>FE: 200 OK [spectacles]
+    FE-->>User: Affiche liste spectacles
+    
+    %% Processus de réservation
+    Note over User,DB: 3. Réservation
+    User->>FE: Clique "Réserver" (spectacleId, quantite)
+    FE->>API: POST /reservations {spectacleId, quantite} + JWT
+    API->>API: validateJWT() & extractUser()
+    API->>ResServ: creerReservation(request, userId)
+    
+    ResServ->>SpecServ: findById(spectacleId)
+    SpecServ->>DB: SELECT spectacle
+    DB-->>SpecServ: Spectacle
+    SpecServ-->>ResServ: Spectacle
+    
+    ResServ->>ResServ: verifierDisponibilite()
+    
+    alt Places disponibles
+        ResServ->>ResServ: calculerMontant()
+        ResServ->>ResServ: genererCodeConfirmation()
+        ResServ->>DB: BEGIN TRANSACTION
+        ResServ->>DB: INSERT INTO reservations
+        ResServ->>DB: UPDATE spectacles SET places_disponibles
+        ResServ->>ResServ: genererBillets()
+        ResServ->>DB: INSERT INTO billets (multiple)
+        ResServ->>DB: COMMIT
+        DB-->>ResServ: Reservation + Billets
+        ResServ-->>API: ReservationResponse
+        API-->>FE: 201 Created {reservation, billets}
+        FE-->>User: Confirmation + Code QR
+    else Places insuffisantes
+        ResServ-->>API: Exception "Places insuffisantes"
+        API-->>FE: 400 Bad Request
+        FE-->>User: Message d'erreur
+    end
+    
+    %% Consultation des réservations
+    Note over User,DB: 4. Mes Réservations
+    User->>FE: Accède à "Mes Réservations"
+    FE->>API: GET /reservations/mes-reservations + JWT
+    API->>API: validateJWT() & extractUserId()
+    API->>ResServ: getReservationsUtilisateur(userId)
+    ResServ->>DB: SELECT * FROM reservations WHERE user_id=?
+    DB-->>ResServ: List<Reservation>
+    ResServ->>ResServ: convertToResponse()
+    ResServ-->>API: List<ReservationResponse>
+    API-->>FE: 200 OK [reservations]
+    FE-->>User: Affiche historique
+    
+    %% Annulation de réservation
+    Note over User,DB: 5. Annulation
+    User->>FE: Clique "Annuler" (reservationId)
+    FE->>FE: Demande confirmation
+    User->>FE: Confirme
+    FE->>API: DELETE /reservations/{id} + JWT
+    API->>API: validateJWT() & extractUserId()
+    API->>ResServ: annulerReservation(id, userId)
+    ResServ->>DB: SELECT reservation
+    DB-->>ResServ: Reservation
+    ResServ->>ResServ: peutEtreAnnulee()
+    
+    alt Annulation possible
+        ResServ->>DB: BEGIN TRANSACTION
+        ResServ->>DB: UPDATE reservation SET statut='ANNULEE'
+        ResServ->>DB: UPDATE spectacle SET places_disponibles + quantite
+        ResServ->>DB: COMMIT
+        ResServ-->>API: Success
+        API-->>FE: 200 OK
+        FE-->>User: "Réservation annulée"
+    else Annulation impossible
+        ResServ-->>API: Exception
+        API-->>FE: 400 Bad Request
+        FE-->>User: Message d'erreur
+    end
+```

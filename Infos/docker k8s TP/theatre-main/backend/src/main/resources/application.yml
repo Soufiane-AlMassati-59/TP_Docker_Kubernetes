@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: theatre-booking-platform
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/theatre_db?useUnicode=yes&characterEncoding=UTF-8
+    username: theatre_user
+    password: theatre123
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-init-sql: SET client_encoding TO 'UTF8'
+  
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+  jackson:
+    time-zone: Europe/Paris
+    date-format: yyyy-MM-dd'T'HH:mm:ss
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+jwt:
+  secret: VotreCleSecreteTresLongueEtSecurisee123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  expiration: 86400000 # 24h en millisecondes
+
+logging:
+  level:
+    com.theatre: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:5173,http://localhost:4200
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
+  allowed-headers: "*"
+  allow-credentials: true
+
+# Configuration du microservice d'authentification
+auth:
+  service:
+    url: http://localhost:8081/auth

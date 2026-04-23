@@ -1,0 +1,283 @@
+```mermaid
+classDiagram
+    %% Enumerations
+    class Role {
+        <<enumeration>>
+        USER
+        ADMIN
+    }
+    
+    class StatutReservation {
+        <<enumeration>>
+        EN_ATTENTE
+        CONFIRMEE
+        ANNULEE
+        EXPIREE
+    }
+    
+    %% Entités principales
+    class Utilisateur {
+        -Long id
+        -String nom
+        -String prenom
+        -String email
+        -String motDePasse
+        -Role role
+        -LocalDateTime dateInscription
+        -Boolean actif
+        -List~Reservation~ reservations
+        +isAdmin() boolean
+        +getNomComplet() String
+    }
+    
+    class Spectacle {
+        -Long id
+        -String titre
+        -String description
+        -LocalDate dateSpectacle
+        -LocalTime heureDebut
+        -BigDecimal prixUnitaire
+        -String imageUrl
+        -Integer placesTotales
+        -Integer placesDisponibles
+        -String categorie
+        -Boolean actif
+        -LocalDateTime dateCreation
+        -List~Reservation~ reservations
+        +verifierDisponibilite(int) boolean
+        +reserverPlaces(int) void
+        +libererPlaces(int) void
+        +getTauxRemplissage() double
+        +getRevenuPotentiel() BigDecimal
+    }
+    
+    class Reservation {
+        -Long id
+        -Utilisateur utilisateur
+        -Spectacle spectacle
+        -LocalDateTime dateReservation
+        -Integer quantite
+        -BigDecimal montantTotal
+        -StatutReservation statut
+        -String codeConfirmation
+        -List~Billet~ billets
+        +calculerMontant() void
+        +confirmer() void
+        +annuler() void
+        +peutEtreAnnulee() boolean
+    }
+    
+    class Billet {
+        -Long id
+        -Reservation reservation
+        -String numeroPlace
+        -String codeQR
+        -LocalDateTime dateGeneration
+        -Boolean utilise
+        -LocalDateTime dateUtilisation
+        +marquerUtilise() void
+        +estValide() boolean
+    }
+    
+    %% DTOs
+    class LoginRequest {
+        -String email
+        -String motDePasse
+    }
+    
+    class RegisterRequest {
+        -String nom
+        -String prenom
+        -String email
+        -String motDePasse
+    }
+    
+    class SpectacleRequest {
+        -String titre
+        -String description
+        -LocalDate dateSpectacle
+        -LocalTime heureDebut
+        -BigDecimal prixUnitaire
+        -String imageUrl
+        -Integer placesTotales
+        -String categorie
+    }
+    
+    class ReservationRequest {
+        -Long spectacleId
+        -Integer quantite
+    }
+    
+    class AuthResponse {
+        -String token
+        -String type
+        -Long id
+        -String email
+        -String nom
+        -String prenom
+        -Role role
+    }
+    
+    class SpectacleResponse {
+        -Long id
+        -String titre
+        -String description
+        -LocalDate dateSpectacle
+        -LocalTime heureDebut
+        -BigDecimal prixUnitaire
+        -String imageUrl
+        -Integer placesTotales
+        -Integer placesDisponibles
+        -String categorie
+        -Boolean actif
+        -Double tauxRemplissage
+    }
+    
+    class ReservationResponse {
+        -Long id
+        -Long utilisateurId
+        -String utilisateurNom
+        -Long spectacleId
+        -String spectacleTitre
+        -LocalDateTime dateReservation
+        -Integer quantite
+        -BigDecimal montantTotal
+        -StatutReservation statut
+        -String codeConfirmation
+        -List~BilletResponse~ billets
+    }
+    
+    class BilletResponse {
+        -Long id
+        -String numeroPlace
+        -String codeQR
+        -LocalDateTime dateGeneration
+        -Boolean utilise
+    }
+    
+    %% Repositories
+    class UtilisateurRepository {
+        <<interface>>
+        +findByEmail(String) Optional~Utilisateur~
+        +existsByEmail(String) Boolean
+    }
+    
+    class SpectacleRepository {
+        <<interface>>
+        +findByDateSpectacleAfterAndActifTrue(LocalDate) List~Spectacle~
+        +findByCategorie(String) List~Spectacle~
+        +searchByTitre(String) List~Spectacle~
+    }
+    
+    class ReservationRepository {
+        <<interface>>
+        +findByUtilisateurIdOrderByDateReservationDesc(Long) List~Reservation~
+        +findByCodeConfirmation(String) Optional~Reservation~
+        +findByStatut(StatutReservation) List~Reservation~
+    }
+    
+    class BilletRepository {
+        <<interface>>
+        +findByReservationId(Long) List~Billet~
+        +findByCodeQR(String) Optional~Billet~
+    }
+    
+    %% Services
+    class UtilisateurService {
+        -UtilisateurRepository utilisateurRepository
+        -PasswordEncoder passwordEncoder
+        +creerUtilisateur(RegisterRequest) Utilisateur
+        +findByEmail(String) Utilisateur
+        +findById(Long) Utilisateur
+    }
+    
+    class SpectacleService {
+        -SpectacleRepository spectacleRepository
+        +creerSpectacle(SpectacleRequest) SpectacleResponse
+        +modifierSpectacle(Long, SpectacleRequest) SpectacleResponse
+        +supprimerSpectacle(Long) void
+        +getSpectacle(Long) SpectacleResponse
+        +getAllSpectaclesActifs() List~SpectacleResponse~
+        +getSpectaclesDisponibles() List~SpectacleResponse~
+    }
+    
+    class ReservationService {
+        -ReservationRepository reservationRepository
+        -SpectacleRepository spectacleRepository
+        -BilletService billetService
+        +creerReservation(ReservationRequest, Long) ReservationResponse
+        +annulerReservation(Long, Long) void
+        +getReservationsUtilisateur(Long) List~ReservationResponse~
+    }
+    
+    class BilletService {
+        -BilletRepository billetRepository
+        +genererBillets(Reservation, int) List~Billet~
+        +validerBillet(String) Billet
+    }
+    
+    class StatisticsService {
+        -ReservationRepository reservationRepository
+        -SpectacleRepository spectacleRepository
+        +getStatistiquesGlobales() StatisticsResponse
+        +getSpectaclesPopulaires() List~SpectacleStats~
+    }
+    
+    %% Controllers
+    class AuthController {
+        -UtilisateurService utilisateurService
+        -JwtTokenProvider jwtTokenProvider
+        +register(RegisterRequest) ResponseEntity
+        +login(LoginRequest) ResponseEntity
+    }
+    
+    class SpectacleController {
+        -SpectacleService spectacleService
+        +getAllSpectacles() List~SpectacleResponse~
+        +getSpectacle(Long) SpectacleResponse
+        +creerSpectacle(SpectacleRequest) SpectacleResponse
+        +modifierSpectacle(Long, SpectacleRequest) SpectacleResponse
+        +supprimerSpectacle(Long) void
+    }
+    
+    class ReservationController {
+        -ReservationService reservationService
+        +creerReservation(ReservationRequest) ReservationResponse
+        +getMesReservations() List~ReservationResponse~
+        +annulerReservation(Long) void
+    }
+    
+    class StatisticsController {
+        -StatisticsService statisticsService
+        +getStatistiquesGlobales() StatisticsResponse
+    }
+    
+    %% Relations entre entités
+    Utilisateur "1" -- "*" Reservation : possède
+    Spectacle "1" -- "*" Reservation : concerne
+    Reservation "1" -- "*" Billet : génère
+    Utilisateur -- Role
+    Reservation -- StatutReservation
+    
+    %% Relations Services-Repositories
+    UtilisateurService --> UtilisateurRepository : utilise
+    SpectacleService --> SpectacleRepository : utilise
+    ReservationService --> ReservationRepository : utilise
+    ReservationService --> SpectacleRepository : utilise
+    ReservationService --> BilletService : utilise
+    BilletService --> BilletRepository : utilise
+    StatisticsService --> ReservationRepository : utilise
+    StatisticsService --> SpectacleRepository : utilise
+    
+    %% Relations Controllers-Services
+    AuthController --> UtilisateurService : utilise
+    SpectacleController --> SpectacleService : utilise
+    ReservationController --> ReservationService : utilise
+    StatisticsController --> StatisticsService : utilise
+    
+    %% Relations Repositories-Entities
+    UtilisateurRepository ..> Utilisateur : gère
+    SpectacleRepository ..> Spectacle : gère
+    ReservationRepository ..> Reservation : gère
+    BilletRepository ..> Billet : gère
+```
