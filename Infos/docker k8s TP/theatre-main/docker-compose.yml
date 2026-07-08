@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: theatre_db
+      POSTGRES_USER: theatre_user
+      POSTGRES_PASSWORD: theatre123
+    ports:
+      - "5432:5432"
+    volumes:
+      - theatre_db_data:/var/lib/postgresql/data
+      - ./architecture_bdd_utf8.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    image: theatre-backend
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/theatre_db
+      SPRING_DATASOURCE_USERNAME: theatre_user
+      SPRING_DATASOURCE_PASSWORD: theatre123
+
+  frontend:
+    image: theatre-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8088:80"
+
+volumes:
+  theatre_db_data:
